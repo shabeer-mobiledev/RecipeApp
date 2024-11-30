@@ -12,22 +12,43 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class MealVIewModel @Inject constructor(private val repository: MealRepository) : ViewModel() {
+class MealViewModel @Inject constructor(private val repository: MealRepository) : ViewModel() {
+
 
     private val _storeMealData = MutableLiveData<MealDB>()
     val storeMealData: LiveData<MealDB> = _storeMealData
+
+
+    private val _isLoading = MutableLiveData<Boolean>(false)
+    val isLoading: LiveData<Boolean> = _isLoading
+
+
+    private val _errorMessage = MutableLiveData<String?>()
+    val errorMessage: LiveData<String?> = _errorMessage
 
     init {
         getMealDataFromApi()
     }
 
     fun getMealDataFromApi() {
+
+        _isLoading.value = true
+
+
         viewModelScope.launch {
-            val responce = repository.getAllData()
-            if (responce.isSuccessful) {
-                _storeMealData.value = responce.body()
-            } else {
-                Log.d("error", responce.message())
+            try {
+                val response = repository.getAllData()
+                if (response.isSuccessful) {
+                    _storeMealData.value = response.body()
+                } else {
+                    _errorMessage.value = response.message()
+                    Log.d("MealViewModel", "Error: ${response.message()}")
+                }
+            } catch (e: Exception) {
+                _errorMessage.value = e.localizedMessage
+                Log.d("MealViewModel", "Exception: ${e.localizedMessage}")
+            } finally {
+                _isLoading.value = false
             }
         }
     }
