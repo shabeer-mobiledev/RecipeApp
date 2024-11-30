@@ -25,19 +25,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil3.compose.AsyncImage
 import com.shabeer.recipeapp.retrofit.data.models.Category
 import com.shabeer.recipeapp.retrofit.data.models.MealDB
+import com.shabeer.recipeapp.retrofit.presentation.viewmodel.MealViewModel
 
 @Composable
-fun CategoryScreen(mealDB: MealDB?, navController: NavController) {
-    // Dynamic color based on Material theme
-    val colors = MaterialTheme.colorScheme
-    val isLoading = mealDB == null // Check if the data is loading or not
+fun CategoryScreen(mealDB: MealDB?, navController: NavController, viewModel: MealViewModel = hiltViewModel()) {
 
-    // Display the CircularProgressIndicator while data is loading
-    if (isLoading) {
+    val colors = MaterialTheme.colorScheme
+
+
+    if (viewModel.isLoading.value) {
         LoadingScreen()
     } else {
         LazyColumn(
@@ -55,7 +56,6 @@ fun CategoryScreen(mealDB: MealDB?, navController: NavController) {
 
 @Composable
 fun LoadingScreen() {
-    // Display a circular progress indicator while data is loading
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
